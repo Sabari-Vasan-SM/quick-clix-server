@@ -288,6 +288,17 @@ if (fs.existsSync(clientDistPath)) {
     });
 }
 
+// --- Self-ping cron job to keep server awake ---
+const https = require('https');
+const SELF_PING_URL = process.env.SELF_PING_URL || 'https://quick-clix-server.onrender.com/health';
+setInterval(() => {
+    https.get(SELF_PING_URL, (res) => {
+        console.log(`Self-ping status: ${res.statusCode}`);
+    }).on('error', (err) => {
+        console.error('Self-ping failed:', err.message);
+    });
+}, 10 * 60 * 1000); // every 10 minutes
+
 app.listen(config.port, () => {
     console.log(`Quick Clix API running on http://localhost:${config.port}`);
 });
